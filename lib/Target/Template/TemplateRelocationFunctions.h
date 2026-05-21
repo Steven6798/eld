@@ -69,6 +69,8 @@ struct RelocationDescription RelocDesc[] = {
     } */
 };
 
+#define TEMPLATE_MAXRELOCS (/*llvm::ELF::R_LAST_RELOC + 1*/ 0)
+
 } // namespace eld
 
 #endif // TEMPLATE_RELOCATION_FUNCTIONS_H

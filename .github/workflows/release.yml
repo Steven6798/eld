@@ -5,6 +5,7 @@ name: Release
 # ---------------------------------------------------------------------------
 # • Push a tag like "v1.2.3" or "v1.2.3-rc1"  → full release pipeline
 # • workflow_dispatch                           → manual test run (no tag needed)
+# BANANA
 on:
   push:
     tags:

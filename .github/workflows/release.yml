@@ -1,0 +1,86 @@
+name: Release
+
+# ---------------------------------------------------------------------------
+# Triggers
+# ---------------------------------------------------------------------------
+# • Push a tag like "v1.2.3" or "v1.2.3-rc1"  → full release pipeline
+# • workflow_dispatch                           → manual test run (no tag needed)
+# BANANA
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag / version to use for the test release (e.g. v0.0.0-test)'
+        required: false
+        default: 'v0.0.0-test'
+      draft:
+        description: 'Publish as draft?'
+        required: false
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: write   # needed to create/update GitHub Releases
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      # ------------------------------------------------------------------ #
+      # 1. Resolve the effective tag name
+      #    - On a real tag push  → use the pushed tag (refs/tags/vX.Y.Z)
+      #    - On workflow_dispatch → use the user-supplied input
+      # ------------------------------------------------------------------ #
+      - name: Resolve tag name
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${{ github.event.inputs.tag_name }}"
+          fi
+          echo "name=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag: ${TAG}"
+
+      # ------------------------------------------------------------------ #
+      # 2. Checkout with full history so GitHub can compare against the
+      #    previous tag when generating the PR/commit list
+      # ------------------------------------------------------------------ #
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4.1.7
+        with:
+          fetch-depth: 0
+
+      # ------------------------------------------------------------------ #
+      # 3. Create the GitHub Release
+      #
+      #    generate_release_notes: true  → GitHub reads .github/release.yml
+      #    and auto-categorizes merged PRs by their labels.
+      #    draft: true on tag push so a human can review before publishing.
+      # ------------------------------------------------------------------ #
+      - name: Resolve draft flag
+        id: draft_flag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ github.event.inputs.draft }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v2.3.2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: 'ELD ${{ steps.tag.outputs.name }}'
+          generate_release_notes: true
+          draft: ${{ steps.draft_flag.outputs.value }}
+          prerelease: ${{ contains(steps.tag.outputs.name, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

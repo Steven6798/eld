@@ -2,7 +2,7 @@ name: BusyBox with ELD
 
 on:
   workflow_dispatch:
-  # pull_request: {}
+  pull_request: {}
   schedule:
    - cron: "0 5 * * *"
 
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   fetch-clang-cross-toolchain:
-    if: github.repository == 'qualcomm/eld'
+    # if: github.repository == 'qualcomm/eld'
     strategy:
       fail-fast: false
       matrix:
@@ -46,7 +46,7 @@ jobs:
       enabled: ${{ matrix.enabled == 1 }}
 
   build-busybox-with-eld:
-    if: github.repository == 'qualcomm/eld'
+    # if: github.repository == 'qualcomm/eld'
     needs: fetch-clang-cross-toolchain
     runs-on: ubuntu-latest
     permissions:
@@ -295,6 +295,14 @@ jobs:
         shell: bash
         run: |
           FileCheck --input-file=/tmp/busybox-test-output.txt "${{ github.workspace }}/test/BusyBox/${{ matrix.arch }}/test-failures.txt"
+
+      - name: Upload BusyBox binary
+        if: matrix.enabled == 1 && matrix.arch == 'riscv32'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        with:
+          name: busybox-eld-riscv32
+          path: busybox/busybox
+          retention-days: 1
 
       - name: Update build entry
         if: github.event_name == 'schedule' && matrix.enabled == 1

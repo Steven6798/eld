@@ -1,5 +1,5 @@
 # About
-
+yeeet
 At Qualcomm, embedded linkers are a critical component of our software stack. While several linkers function effectively on traditional platforms, they do not seamlessly support embedded use cases.
 
 For instance, embedded projects :-

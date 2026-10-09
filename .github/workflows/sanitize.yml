@@ -1,4 +1,4 @@
-name: Nightly sanitizer check
+name: Nightly sanitizer check banaynay
 # owner: quic-seaswara
 
 on:

@@ -58,6 +58,15 @@ jobs:
               repo: context.repo.repo,
               workflow_id: 'build-pr-toolset.yml',
             });
+            const routerWorkflow = await github.rest.actions.getWorkflow({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'pr-comment-router.yml',
+            });
+            const allowedWorkflowIds = new Set([
+              String(buildWorkflow.data.id),
+              String(routerWorkflow.data.id),
+            ]);
             const artifacts = await github.paginate(
               github.rest.actions.listArtifactsForRepo,
               {
@@ -78,11 +87,15 @@ jobs:
                 repo: context.repo.repo,
                 run_id: runId,
               });
-              if (String(run.data.workflow_id) === String(buildWorkflow.data.id) &&
+              if (allowedWorkflowIds.has(String(run.data.workflow_id)) &&
                   run.data.conclusion === 'success') {
                 reusableArtifact = artifact;
+                core.info(`Reusing artifact ${artifactName} from workflow run ${runId}.`);
                 break;
               }
+            }
+            if (!reusableArtifact) {
+              core.info(`No reusable artifact found for ${artifactName}; the build job will run.`);
             }
 
             core.setOutput('pr_number', String(context.issue.number));

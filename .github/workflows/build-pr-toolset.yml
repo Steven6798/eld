@@ -78,6 +78,7 @@ jobs:
       contents: read
       actions: write
       issues: write
+      pull-requests: write
     env:
       PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
       HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}

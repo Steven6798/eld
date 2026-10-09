@@ -36,6 +36,7 @@ jobs:
       contents: read
       actions: read
       issues: write
+      pull-requests: write
     env:
       ELD_SOURCE_DIR: ${{ github.workspace }}/llvm-project/llvm/tools/eld
     steps:

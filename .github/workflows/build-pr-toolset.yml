@@ -117,7 +117,7 @@ jobs:
           mkdir -p "$CCACHE_DIR" obj
           ccache --set-config "max_size=0"
           cmake -G Ninja \
-            -S ../llvm-project/llvm \
+            -S llvm-project/llvm \
             -B obj \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON \

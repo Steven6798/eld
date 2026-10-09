@@ -2,6 +2,21 @@ name: Build PR ELD toolset
 run-name: "Build PR #${{ inputs.pr_number }} @${{ inputs.pr_sha }} (${{ inputs.request_id }})"
 
 on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: true
+        type: number
+      pr_sha:
+        required: true
+        type: string
+      request_id:
+        required: true
+        type: string
+    outputs:
+      artifact_name:
+        description: "Name of the uploaded PR toolset artifact"
+        value: ${{ jobs.build.outputs.artifact_name }}
   workflow_dispatch:
     inputs:
       pr_number:
@@ -70,6 +85,8 @@ jobs:
   build:
     needs: resolve
     if: needs.resolve.result == 'success'
+    outputs:
+      artifact_name: ${{ format('pr-eld-toolset-{0}', needs.resolve.outputs.head_sha) }}
     runs-on: ubuntu-latest
     concurrency:
       group: pr-eld-toolset-${{ needs.resolve.outputs.pr_number }}-${{ needs.resolve.outputs.head_sha }}
@@ -158,22 +175,3 @@ jobs:
           name: pr-eld-toolset-${{ env.HEAD_SHA }}
           path: pr-${{ env.PR_NUMBER }}/install-pr-toolset.tar.xz
           retention-days: 7
-
-      - name: Report build result on the PR
-        if: always()
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
-        env:
-          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
-          PR_SHA: ${{ needs.resolve.outputs.head_sha }}
-          BUILD_STATUS: ${{ job.status }}
-          BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            const status = process.env.BUILD_STATUS === 'success' ? '✅ succeeded' : '❌ failed';
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: Number(process.env.PR_NUMBER),
-              body: `PR ELD toolset build ${status} for \`${process.env.PR_SHA}\`. [View workflow run](${process.env.BUILD_RUN_URL}).`,
-            });

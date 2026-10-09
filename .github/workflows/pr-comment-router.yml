@@ -13,30 +13,30 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
-  actions: write
+  actions: read
 
 jobs:
-  route:
+  validate:
     # Restore the upstream-only gate before merging this workflow upstream:
     # if: github.repository == 'qualcomm/eld' &&
     #     github.event.issue.pull_request != null
-    if: |
-      github.event.issue.pull_request != null
+    if: github.event.issue.pull_request != null
     runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.request.outputs.pr_number }}
+      pr_sha: ${{ steps.request.outputs.pr_sha }}
+      request_id: ${{ steps.request.outputs.request_id }}
     steps:
-      - name: Route comment request
+      - name: Validate comment request
+        id: request
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         env:
           COMMENT_BODY: ${{ github.event.comment.body }}
         with:
           github-token: ${{ github.token }}
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const issueNumber = context.issue.number;
             const command = process.env.COMMENT_BODY.trim();
             const allowed = new Set(['COLLABORATOR', 'MEMBER', 'OWNER']);
-
             if (command !== 'check-llvm-test-suite' ||
                 !allowed.has(context.payload.comment.author_association)) {
               core.info('Ignoring unrelated or unauthorized comment.');
@@ -44,108 +44,82 @@ jobs:
             }
 
             const pullRequest = (await github.rest.pulls.get({
-              owner,
-              repo,
-              pull_number: issueNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
             })).data;
-            const buildUrl = `${context.serverUrl}/${owner}/${repo}/actions/workflows/build-pr-toolset.yml`;
-            let buildRun;
+            const requestId = `${context.issue.number}-${pullRequest.head.sha}-${context.payload.comment.id}`;
 
-            try {
-              const requestId = `${issueNumber}-${pullRequest.head.sha}-${context.payload.comment.id}`;
-              const artifactName = `pr-eld-toolset-${pullRequest.head.sha}`;
-              const runName = `Build PR #${issueNumber} @${pullRequest.head.sha} (${requestId})`;
-              const dispatchedAt = Date.now();
+            core.setOutput('pr_number', String(context.issue.number));
+            core.setOutput('pr_sha', pullRequest.head.sha);
+            core.setOutput('request_id', requestId);
 
-              await github.rest.actions.createWorkflowDispatch({
-                owner,
-                repo,
-                workflow_id: 'build-pr-toolset.yml',
-                ref: context.payload.repository.default_branch,
-                inputs: {
-                  pr_number: String(issueNumber),
-                  pr_sha: pullRequest.head.sha,
-                  request_id: requestId,
-                },
-              });
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `LLVM test suite request accepted for \`${pullRequest.head.sha}\`. Build and test jobs are starting in this workflow run.`,
+            });
 
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: issueNumber,
-                body: `LLVM test suite request accepted for \`${pullRequest.head.sha}\`. Building the PR toolset: [workflow](${buildUrl}).`,
-              });
+  build:
+    needs: validate
+    if: needs.validate.outputs.pr_sha != ''
+    uses: ./.github/workflows/build-pr-toolset.yml
+    with:
+      pr_number: ${{ needs.validate.outputs.pr_number }}
+      pr_sha: ${{ needs.validate.outputs.pr_sha }}
+      request_id: ${{ needs.validate.outputs.request_id }}
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: read
 
-              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-              for (let attempt = 0; attempt < 120; attempt += 1) {
-                const runs = await github.paginate(
-                  github.rest.actions.listWorkflowRuns,
-                  {
-                    owner,
-                    repo,
-                    workflow_id: 'build-pr-toolset.yml',
-                    event: 'workflow_dispatch',
-                    per_page: 100,
-                  }
-                );
-                buildRun = runs
-                  .filter(run =>
-                    run.display_title === runName &&
-                    new Date(run.created_at).getTime() >= dispatchedAt - 5000
-                  )
-                  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+  test:
+    needs: [validate, build]
+    if: needs.validate.outputs.pr_sha != ''
+    uses: ./.github/workflows/llvm-test-suite-pr.yml
+    with:
+      pr_number: ${{ needs.validate.outputs.pr_number }}
+      pr_sha: ${{ needs.validate.outputs.pr_sha }}
+      build_run_id: ${{ github.run_id }}
+      artifact_name: ${{ needs.build.outputs.artifact_name }}
+    permissions:
+      contents: read
+      actions: read
 
-                if (buildRun?.status === 'completed') {
-                  break;
-                }
-                if (attempt < 119) {
-                  await sleep(30000);
-                }
-              }
-
-              if (!buildRun || buildRun.status !== 'completed' || buildRun.conclusion !== 'success') {
-                const conclusion = buildRun?.conclusion || 'timed out';
-                throw new Error(`PR toolset build did not succeed (${conclusion}).`);
-              }
-
-              await github.rest.actions.createWorkflowDispatch({
-                owner,
-                repo,
-                workflow_id: 'llvm-test-suite-pr.yml',
-                ref: context.payload.repository.default_branch,
-                inputs: {
-                  pr_number: String(issueNumber),
-                  pr_sha: pullRequest.head.sha,
-                  build_run_id: String(buildRun.id),
-                  artifact_name: artifactName,
-                },
-              });
-
-              const testUrl = `${context.serverUrl}/${owner}/${repo}/actions/workflows/llvm-test-suite-pr.yml`;
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: issueNumber,
-                body: `PR toolset built successfully. LLVM test suite started: [workflow](${testUrl}).`,
-              });
-            } catch (error) {
-              const message = error instanceof Error ? error.message : String(error);
-              const runUrl = buildRun?.html_url || buildUrl;
-              try {
-                await github.rest.issues.createComment({
-                  owner,
-                  repo,
-                  issue_number: issueNumber,
-                  body: [
-                    `❌ LLVM test suite request failed for \`${pullRequest.head.sha}\`.`,
-                    '',
-                    `Build workflow: [view run](${runUrl})`,
-                    '',
-                    `Reason: ${message}`,
-                  ].join('\n'),
-                });
-              } catch (commentError) {
-                core.warning(`Could not post failure comment: ${commentError}`);
-              }
-              core.setFailed(message);
+  report:
+    needs: [validate, build, test]
+    if: always() && needs.validate.outputs.pr_sha != ''
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Report workflow result on the PR
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
+        env:
+          PR_NUMBER: ${{ needs.validate.outputs.pr_number }}
+          PR_SHA: ${{ needs.validate.outputs.pr_sha }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const buildResult = process.env.BUILD_RESULT;
+            const testResult = process.env.TEST_RESULT;
+            let message;
+            if (buildResult !== 'success') {
+              message = `❌ PR ELD toolset build failed for \`${process.env.PR_SHA}\`.`;
+            } else if (testResult === 'success') {
+              message = `✅ LLVM test suite passed for \`${process.env.PR_SHA}\`.`;
+            } else {
+              message = `❌ LLVM test suite failed for \`${process.env.PR_SHA}\`.`;
             }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `${message} [View workflow run](${process.env.RUN_URL}).`,
+            });

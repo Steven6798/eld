@@ -53,20 +53,6 @@ jobs:
             })).data;
             const requestId = `${context.issue.number}-${pullRequest.head.sha}-${context.payload.comment.id}`;
             const artifactName = `pr-eld-toolset-${pullRequest.head.sha}`;
-            const buildWorkflow = await github.rest.actions.getWorkflow({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'build-pr-toolset.yml',
-            });
-            const routerWorkflow = await github.rest.actions.getWorkflow({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'pr-comment-router.yml',
-            });
-            const allowedWorkflowIds = new Set([
-              String(buildWorkflow.data.id),
-              String(routerWorkflow.data.id),
-            ]);
             const artifacts = await github.paginate(
               github.rest.actions.listArtifactsForRepo,
               {
@@ -87,8 +73,7 @@ jobs:
                 repo: context.repo.repo,
                 run_id: runId,
               });
-              if (allowedWorkflowIds.has(String(run.data.workflow_id)) &&
-                  run.data.conclusion === 'success') {
+              if (run.data.conclusion === 'success') {
                 reusableArtifact = artifact;
                 core.info(`Reusing artifact ${artifactName} from workflow run ${runId}.`);
                 break;

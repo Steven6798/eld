@@ -35,6 +35,7 @@ jobs:
     permissions:
       contents: read
       actions: read
+      issues: write
     env:
       ELD_SOURCE_DIR: ${{ github.workspace }}/llvm-project/llvm/tools/eld
     steps:
@@ -117,3 +118,22 @@ jobs:
           name: llvm-test-suite-results-${{ inputs.pr_sha }}
           path: test-output.txt
           retention-days: 7
+
+      - name: Report test result on the PR
+        if: always()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
+          PR_SHA: ${{ inputs.pr_sha }}
+          TEST_STATUS: ${{ job.status }}
+          TEST_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const status = process.env.TEST_STATUS === 'success' ? '✅ passed' : '❌ failed';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `LLVM test suite ${status} for \`${process.env.PR_SHA}\`. [View workflow run](${process.env.TEST_RUN_URL}).`,
+            });

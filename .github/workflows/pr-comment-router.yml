@@ -17,9 +17,9 @@ permissions:
 
 jobs:
   validate:
-    if: |
-      github.repository == 'qualcomm/eld' &&
-      github.event.issue.pull_request != null
+    # Restore before merging upstream: github.repository == 'qualcomm/eld' &&
+    # github.event.issue.pull_request != null
+    if: github.event.issue.pull_request != null
     runs-on: ubuntu-latest
     outputs:
       pr_number: ${{ steps.request.outputs.pr_number }}

@@ -16,7 +16,9 @@ permissions:
 
 jobs:
   test-llvm-test-suite-x86_64:
-    if: github.repository == 'qualcomm/eld' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    # Restore before merging upstream: github.repository == 'qualcomm/eld' &&
+    # (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write

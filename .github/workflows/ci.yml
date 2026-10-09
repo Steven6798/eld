@@ -35,7 +35,7 @@ on:
 permissions: {}
 jobs:
   resolve:
-    if: github.repository == 'qualcomm/eld'
+    # Restore before merging upstream: if: github.repository == 'qualcomm/eld'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read

@@ -39,7 +39,7 @@ permissions:
 
 jobs:
   resolve:
-    if: github.repository == 'qualcomm/eld'
+    # Restore before merging upstream: if: github.repository == 'qualcomm/eld'
     runs-on: ubuntu-latest
     outputs:
       pr_number: ${{ steps.find.outputs.pr_number }}
@@ -87,7 +87,7 @@ jobs:
     if: needs.resolve.result == 'success'
     outputs:
       artifact_name: ${{ format('pr-eld-toolset-{0}', needs.resolve.outputs.head_sha) }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     concurrency:
       group: pr-eld-toolset-${{ needs.resolve.outputs.pr_number }}-${{ needs.resolve.outputs.head_sha }}
       cancel-in-progress: true
@@ -99,7 +99,7 @@ jobs:
       PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
       HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
       BASE_BRANCH_NAME: ${{ needs.resolve.outputs.base_ref }}
-      CCACHE_DIR: /local/mnt/workspace/ccache/${{ needs.resolve.outputs.base_ref }}
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_BASEDIR: ${{ github.workspace }}
       CCACHE_COMPILERCHECK: content
       CCACHE_NOHASHDIR: true
@@ -121,6 +121,11 @@ jobs:
 
       - name: Setup musl environment
         run: echo "/opt/musl/bin" >> "$GITHUB_PATH"
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libc++-dev libc++abi-dev ninja-build ccache lld
 
       - name: Configure
         working-directory: pr-${{ env.PR_NUMBER }}

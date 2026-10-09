@@ -41,7 +41,7 @@ permissions:
 
 jobs:
   test:
-    if: github.repository == 'qualcomm/eld'
+    # Restore before merging upstream: if: github.repository == 'qualcomm/eld'
     runs-on: ubuntu-latest
     concurrency:
       group: llvm-test-suite-pr-${{ inputs.pr_number }}-${{ inputs.pr_sha }}

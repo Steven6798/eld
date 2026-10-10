@@ -1,0 +1,53 @@
+{
+  "summary": {
+    "artifactCount": 4,
+    "activeArtifacts": 4,
+    "totalSize": "280.39 MB"
+  },
+  "workflows": [
+    {
+      "name": "Nightly check",
+      "artifacts": [
+        {
+          "name": "install-nightly-toolchain.tar.xz",
+          "size": "202.91 MB",
+          "createdAt": "2026-10-10T00:13:05Z",
+          "expiresAt": "2026-10-17T00:12:57Z"
+        }
+      ]
+    },
+    {
+      "name": "PR comment router #9",
+      "artifacts": [
+        {
+          "name": "pr-eld-toolset-8734162506fbb7c21a5165e5a525dc42f6f6e4bc",
+          "size": "25.83 MB",
+          "createdAt": "2026-10-09T23:41:09Z",
+          "expiresAt": "2026-10-16T23:41:07Z"
+        }
+      ]
+    },
+    {
+      "name": "Build PR #7 @0e0c1ca04df9cc87952e0b5d48ddf62ff98a09c9 (7-0e0c1ca04df9cc87952e0b5d48ddf62ff98a09c9-6084709532)",
+      "artifacts": [
+        {
+          "name": "pr-eld-toolset-0e0c1ca04df9cc87952e0b5d48ddf62ff98a09c9",
+          "size": "25.83 MB",
+          "createdAt": "2026-10-09T17:43:08Z",
+          "expiresAt": "2026-10-16T17:43:06Z"
+        }
+      ]
+    },
+    {
+      "name": "PR comment router #7",
+      "artifacts": [
+        {
+          "name": "pr-eld-toolset-0415d70f90fccd1b392e6ab2812f374b3c779575",
+          "size": "25.82 MB",
+          "createdAt": "2026-10-09T19:28:48Z",
+          "expiresAt": "2026-10-16T19:28:47Z"
+        }
+      ]
+    }
+  ]
+}

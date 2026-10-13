@@ -1,4 +1,4 @@
-name: CI
+name: CI hello world
 run-name: "CI PR #${{ inputs.pr_number || github.event.pull_request.number || 'automatic' }} @${{ inputs.pr_sha || 'unknown' }} (${{ inputs.request_id || 'automatic' }})"
 
 on:

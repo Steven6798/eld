@@ -13,7 +13,7 @@ permissions:
   contents: write
 jobs:
   build-and-runtest-nightly:
-    if: github.repository == 'qualcomm/eld'
+    # if: github.repository == 'qualcomm/eld'
     runs-on: ubuntu-22.04
     env:
       BASE_BRANCH_NAME: ${{ github.event.pull_request.base.ref }}

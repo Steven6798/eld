@@ -1,0 +1,94 @@
+{
+  "summary": {
+    "artifactCount": 10,
+    "activeArtifacts": 10,
+    "totalSize": "281.35 MB"
+  },
+  "workflows": [
+    {
+      "name": "Nightly check",
+      "artifacts": [
+        {
+          "name": "install-nightly-toolchain.tar.xz",
+          "size": "202.94 MB",
+          "createdAt": "2026-10-13T17:46:40Z",
+          "expiresAt": "2026-10-20T17:46:32Z"
+        }
+      ]
+    },
+    {
+      "name": "PR comment router #9",
+      "artifacts": [
+        {
+          "name": "llvm-test-suite-results-8734162506fbb7c21a5165e5a525dc42f6f6e4bc",
+          "size": "158.44 KB",
+          "createdAt": "2026-10-12T16:14:57Z",
+          "expiresAt": "2026-10-19T16:14:57Z"
+        },
+        {
+          "name": "llvm-test-suite-results-8734162506fbb7c21a5165e5a525dc42f6f6e4bc",
+          "size": "158.51 KB",
+          "createdAt": "2026-10-12T15:51:38Z",
+          "expiresAt": "2026-10-19T15:51:37Z"
+        },
+        {
+          "name": "pr-eld-toolset-8734162506fbb7c21a5165e5a525dc42f6f6e4bc",
+          "size": "25.83 MB",
+          "createdAt": "2026-10-09T23:41:09Z",
+          "expiresAt": "2026-10-16T23:41:07Z"
+        }
+      ]
+    },
+    {
+      "name": "Build PR #7 @0e0c1ca04df9cc87952e0b5d48ddf62ff98a09c9 (7-0e0c1ca04df9cc87952e0b5d48ddf62ff98a09c9-6084709532)",
+      "artifacts": [
+        {
+          "name": "pr-eld-toolset-0e0c1ca04df9cc87952e0b5d48ddf62ff98a09c9",
+          "size": "25.83 MB",
+          "createdAt": "2026-10-09T17:43:08Z",
+          "expiresAt": "2026-10-16T17:43:06Z"
+        }
+      ]
+    },
+    {
+      "name": "PR comment router #7",
+      "artifacts": [
+        {
+          "name": "pr-eld-toolset-0415d70f90fccd1b392e6ab2812f374b3c779575",
+          "size": "25.82 MB",
+          "createdAt": "2026-10-09T19:28:48Z",
+          "expiresAt": "2026-10-16T19:28:47Z"
+        }
+      ]
+    },
+    {
+      "name": "Nightly LLVM Test Suite (x86_64)",
+      "artifacts": [
+        {
+          "name": "llvm-test-suite-results",
+          "size": "158.84 KB",
+          "createdAt": "2026-10-13T18:21:28Z",
+          "expiresAt": "2026-10-20T18:21:27Z"
+        },
+        {
+          "name": "llvm-test-suite-results",
+          "size": "158.81 KB",
+          "createdAt": "2026-10-12T20:31:59Z",
+          "expiresAt": "2026-10-19T20:31:58Z"
+        },
+        {
+          "name": "llvm-test-suite-results",
+          "size": "158.76 KB",
+          "createdAt": "2026-10-11T16:56:17Z",
+          "expiresAt": "2026-10-18T16:56:16Z"
+        },
+        {
+          "name": "llvm-test-suite-results",
+          "size": "158.62 KB",
+          "createdAt": "2026-10-10T16:28:51Z",
+          "expiresAt": "2026-10-17T16:28:51Z"
+        }
+      ]
+    }
+  ]
+}

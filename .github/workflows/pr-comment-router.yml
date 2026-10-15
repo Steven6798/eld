@@ -44,7 +44,7 @@ jobs:
       artifact_run_id: ${{ steps.request.outputs.artifact_run_id }}
       artifact_reused: ${{ steps.request.outputs.artifact_reused }}
     steps:
-      - name: Validate comment request
+      - name: Validate comment request banana
         id: request
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         env:

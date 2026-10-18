@@ -1,8 +1,8 @@
 {
   "summary": {
-    "artifactCount": 8,
-    "activeArtifacts": 8,
-    "totalSize": "204.00 MB"
+    "artifactCount": 7,
+    "activeArtifacts": 7,
+    "totalSize": "203.85 MB"
   },
   "workflows": [
     {
@@ -42,12 +42,6 @@
           "size": "158.76 KB",
           "createdAt": "2026-10-11T16:56:17Z",
           "expiresAt": "2026-10-18T16:56:16Z"
-        },
-        {
-          "name": "llvm-test-suite-results",
-          "size": "158.62 KB",
-          "createdAt": "2026-10-10T16:28:51Z",
-          "expiresAt": "2026-10-17T16:28:51Z"
         }
       ]
     },

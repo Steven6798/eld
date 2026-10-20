@@ -1,8 +1,8 @@
 {
   "summary": {
-    "artifactCount": 5,
-    "activeArtifacts": 5,
-    "totalSize": "203.54 MB"
+    "artifactCount": 3,
+    "activeArtifacts": 3,
+    "totalSize": "203.23 MB"
   },
   "workflows": [
     {
@@ -30,23 +30,6 @@
           "size": "158.84 KB",
           "createdAt": "2026-10-13T18:21:28Z",
           "expiresAt": "2026-10-20T18:21:27Z"
-        },
-        {
-          "name": "llvm-test-suite-results",
-          "size": "158.81 KB",
-          "createdAt": "2026-10-12T20:31:59Z",
-          "expiresAt": "2026-10-19T20:31:58Z"
-        }
-      ]
-    },
-    {
-      "name": "PR comment router #9",
-      "artifacts": [
-        {
-          "name": "llvm-test-suite-results-8734162506fbb7c21a5165e5a525dc42f6f6e4bc",
-          "size": "158.44 KB",
-          "createdAt": "2026-10-12T16:14:57Z",
-          "expiresAt": "2026-10-19T16:14:57Z"
         }
       ]
     }

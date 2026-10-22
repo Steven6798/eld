@@ -1,31 +1,8 @@
 {
   "summary": {
-    "artifactCount": 2,
-    "activeArtifacts": 2,
-    "totalSize": "203.07 MB"
+    "artifactCount": 0,
+    "activeArtifacts": 0,
+    "totalSize": "0.00 B"
   },
-  "workflows": [
-    {
-      "name": "Nightly check",
-      "artifacts": [
-        {
-          "name": "install-nightly-toolchain.tar.xz",
-          "size": "202.92 MB",
-          "createdAt": "2026-10-14T15:51:24Z",
-          "expiresAt": "2026-10-21T15:51:17Z"
-        }
-      ]
-    },
-    {
-      "name": "Nightly LLVM Test Suite (x86_64)",
-      "artifacts": [
-        {
-          "name": "llvm-test-suite-results",
-          "size": "158.82 KB",
-          "createdAt": "2026-10-14T16:07:41Z",
-          "expiresAt": "2026-10-21T16:07:40Z"
-        }
-      ]
-    }
-  ]
+  "workflows": []
 }
